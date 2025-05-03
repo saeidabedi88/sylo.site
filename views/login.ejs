@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %> | Content Manager
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .login-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1d3e8f;
+            letter-spacing: 1px;
+        }
+
+        .login-card {
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(30, 60, 120, 0.08);
+        }
+
+        .form-label {
+            font-weight: 500;
+        }
+
+        .toggle-password {
+            cursor: pointer;
+            position: absolute;
+            right: 16px;
+            top: 38px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card mt-5 login-card">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <span class="login-logo">Sylo <span style="color:#4ac3be;">Site</span></span>
+                            <div class="text-muted mt-1 mb-3" style="font-size:1.1rem;">Sign in to your account</div>
+                        </div>
+                        <% if (error) { %>
+                            <div class="alert alert-danger text-center" role="alert">
+                                <%= error %>
+                            </div>
+                            <% } %>
+                                <form action="/login" method="POST" autocomplete="off">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email address</label>
+                                        <input type="email" class="form-control" id="email" name="email" required
+                                            autofocus>
+                                    </div>
+                                    <div class="mb-3 position-relative">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            required>
+                                        <span class="toggle-password bi bi-eye-slash" id="togglePassword"></span>
+                                    </div>
+                                    <div class="d-grid gap-2 mb-2">
+                                        <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                                    </div>
+                                </form>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">Forgot your password? Contact your administrator.</small>
+                                </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3 text-muted">
+                    <small>© <%= new Date().getFullYear() %> Sylo Site</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.js"></script>
+    <script>
+        // Password visibility toggle
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+    </script>
+</body>
+
+</html>

@@ -7,6 +7,7 @@ dotenv.config();
 
 // Import routes
 const contentRoutes = require('./routes/contentRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 // Import database connection
 const sequelize = require('./config/database');
@@ -26,33 +27,34 @@ app.set('views', path.join(__dirname, 'views'));
 
 // API Routes
 app.use('/api/content', contentRoutes);
+app.use('/profile', profileRoutes);
 
 // Frontend Routes
 app.get('/', async (req, res) => {
   try {
     const filter = {};
     const platform = req.query.platform && req.query.platform !== 'all' ? req.query.platform : null;
-    
+
     // Add platform filter if provided
     if (platform) {
       filter.platform = platform;
     }
-    
+
     // Fetch content directly here to avoid additional API call
     const Content = require('./models/Content');
-    const content = await Content.findAll({ 
+    const content = await Content.findAll({
       where: filter,
-      order: [['publishDate', 'ASC']] 
+      order: [['publishDate', 'ASC']]
     });
-    
-    res.render('index', { 
+
+    res.render('index', {
       title: 'Content Management System',
       content: content,
       platform: platform
     });
   } catch (error) {
     console.error('Error fetching content:', error);
-    res.render('index', { 
+    res.render('index', {
       title: 'Content Management System',
       content: [],
       platform: null,
@@ -66,12 +68,12 @@ app.get('/content/:id', async (req, res) => {
   try {
     const Content = require('./models/Content');
     const content = await Content.findByPk(req.params.id);
-    
+
     if (!content) {
       return res.status(404).send('Content not found');
     }
-    
-    res.render('content', { 
+
+    res.render('content', {
       content: content
     });
   } catch (error) {
