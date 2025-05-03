@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= content.topic %> | Acetec Content Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+  <style>
+    :root {
+      /* Primary Brand Colors - Updated colors */
+      --brand-primary: #2b5197;      /* Deeper blue - less intense than before */
+      --brand-secondary: #4071cc;    /* Medium blue - secondary brand color */
+      --brand-accent: #55cfcb;       /* Slightly brighter teal accent for contrast */
+      
+      /* UI Colors */
+      --ui-background: #f9fafb;      /* Very light blue-gray for background */
+      --ui-card: #ffffff;            /* White for cards */
+      --ui-border: #e4e9f2;          /* Light gray for borders */
+      --ui-hover: #f2f6fb;           /* Very light blue for hover states */
+      --ui-section-bg: #f8fafc;      /* Light background for content sections */
+      
+      /* Status Colors */
+      --status-planned: #e9ecef;     /* Light gray for planned status */
+      --status-generated: #ffeecc;   /* Soft yellow for generated status */
+      --status-approved: #dcf5e8;    /* Soft green for approved status */
+      --status-published: #e0f0ff;   /* Soft blue for published status */
+      
+      /* Text Colors */
+      --text-primary: #1e1e1e;       /* Dark gray for primary text instead of black */
+      --text-secondary: #6e7891;     /* Medium gray for secondary text */
+      --text-light: #8f9bb3;         /* Light gray for tertiary text */
+    }
+    
+    body {
+      background-color: var(--ui-background);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    .navbar {
+      background-color: var(--brand-primary) !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 500;
+      line-height: 1.4;
+      margin-bottom: 20px;
+      max-width: 90%;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 26px;
+      margin-top: 1.5rem;
+    }
+    
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      height: calc(100vh - 130px);
+      overflow-y: auto;
+    }
+    
+    .card {
+      background-color: var(--ui-card);
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(23, 43, 77, 0.08);
+      margin-bottom: 22px;
+      border: none;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    
+    .sidebar .card {
+      font-size: 0.92rem;
+    }
+    
+    .metadata-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    
+    .metadata-value {
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+    
+    .keywords-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 15px;
+    }
+    
+    .keyword-badge {
+      background-color: rgba(74, 195, 190, 0.1);
+      color: var(--brand-accent);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    
+    .platform-pill {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      background-color: rgba(57, 101, 192, 0.1);
+      color: var(--brand-secondary);
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+    
+    .status-pill {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+    
+    .status-planned {
+      background-color: var(--status-planned);
+      color: #495057;
+    }
+    
+    .status-generated {
+      background-color: var(--status-generated);
+      color: #805b10;
+    }
+    
+    .status-approved {
+      background-color: var(--status-approved);
+      color: #0d6e49;
+    }
+    
+    .status-published {
+      background-color: var(--status-published);
+      color: #1a5fb4;
+    }
+    
+    .content-section {
+      position: relative;
+      padding: 26px 24px;
+      margin-bottom: 26px;
+      border: 1px solid var(--ui-border);
+      border-radius: 10px;
+      background-color: var(--ui-card);
+      transition: all 0.25s ease;
+    }
+    
+    .content-section:hover {
+      box-shadow: 0 6px 16px rgba(23, 43, 77, 0.12);
+    }
+    
+    .content-section:hover .section-toolbar {
+      opacity: 1;
+    }
+    
+    .section-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background-color: var(--ui-card);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+      display: flex;
+      gap: 6px;
+    }
+    
+    .section-toolbar .btn {
+      padding: 0.3rem 0.55rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+    }
+    
+    .content-image-container {
+      position: relative;
+      margin: 24px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    
+    .content-image-container:hover .image-toolbar {
+      opacity: 1;
+    }
+    
+    .content-image {
+      width: 100%;
+      border-radius: 10px;
+    }
+    
+    .image-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+      display: flex;
+      gap: 6px;
+    }
+    
+    .image-toolbar .btn {
+      padding: 0.3rem 0.55rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+    }
+    
+    .section-content {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+    
+    .btn {
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      font-weight: 500;
+    }
+    
+    .btn-outline-secondary {
+      border-color: var(--text-secondary);
+      color: var(--text-secondary);
+    }
+    
+    .btn-outline-secondary:hover {
+      background-color: var(--text-secondary);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-primary {
+      background-color: var(--brand-primary);
+      border-color: var(--brand-primary);
+    }
+    
+    .btn-primary:hover, .btn-primary:focus {
+      background-color: var(--brand-secondary);
+      border-color: var(--brand-secondary);
+    }
+    
+    .sticky-action-bar {
+      position: sticky;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.98);
+      border-top: 1px solid var(--ui-border);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.06);
+      border-radius: 12px 12px 0 0;
+      margin-top: 10px;
+    }
+    
+    .sticky-action-bar .status-label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+    
+    .section-navigation {
+      position: sticky;
+      top: 80px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .section-navigation a {
+      display: block;
+      padding: 7px 12px;
+      margin-bottom: 5px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+    }
+    
+    .section-navigation a:hover,
+    .section-navigation a.active {
+      background-color: var(--ui-hover);
+      color: var(--brand-primary);
+    }
+    
+    .section-navigation a.active {
+      font-weight: 500;
+    }
+    
+    .nav-tabs {
+      border-bottom-color: var(--ui-border);
+      margin-bottom: 20px;
+    }
+    
+    .nav-tabs .nav-link {
+      color: var(--text-secondary);
+      border: none;
+      padding: 10px 15px;
+      position: relative;
+      font-size: 0.92rem;
+      border-radius: 0;
+      transition: all 0.25s ease;
+      margin-right: 5px;
+    }
+    
+    .nav-tabs .nav-link.active {
+      color: var(--brand-primary);
+      background-color: transparent;
+      font-weight: 600;
+    }
+    
+    .nav-tabs .nav-link.active:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--brand-accent);
+      transition: all 0.25s ease;
+    }
+    
+    .version-badge {
+      background-color: var(--ui-hover);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    
+    /* Autosave indicator */
+    .autosave-indicator {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .autosave-indicator .spinner-border {
+      width: 0.8rem;
+      height: 0.8rem;
+      margin-right: 5px;
+    }
+    
+    .autosave-indicator.saved {
+      color: #0d6e49;
+    }
+    
+    /* Tab content transitions */
+    .tab-pane {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .tab-pane.fade {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    
+    .tab-pane.fade.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Preview content styles */
+    .preview-content p {
+      line-height: 1.8;
+      margin-bottom: 1.2rem;
+    }
+    
+    .preview-content h2 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+    
+    /* Section dividers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .section-header:after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: var(--ui-border);
+      margin-left: 12px;
+    }
+    
+    /* Card hover effect */
+    .card:hover {
+      box-shadow: 0 5px 15px rgba(23, 43, 77, 0.12);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/"><i class="bi bi-lightning-charge"></i> Content Manager</a>
+    </div>
+  </nav>
+
+  <div class="container my-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <a href="/" class="btn btn-outline-secondary btn-sm mb-2">
+          <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+        <h1 class="page-title"><%= content.topic %></h1>
+      </div>
+      <div>
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" id="edit-tab" data-bs-toggle="tab" href="#edit-content">
+              <i class="bi bi-pencil-square"></i> Edit
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="preview-tab" data-bs-toggle="tab" href="#preview-content">
+              <i class="bi bi-eye"></i> Preview
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history-content">
+              <i class="bi bi-clock-history"></i> History <span class="version-badge">3 versions</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="edit-content">
+        <div class="content-wrapper">
+          <!-- Sidebar -->
+          <div class="sidebar">
+            <div class="card">
+              <div class="card-body">
+                <div class="metadata-label">Platform</div>
+                <span class="platform-pill"><%= content.platform.charAt(0).toUpperCase() + content.platform.slice(1) %></span>
+                
+                <div class="metadata-label">Status</div>
+                <% if (content.status === 'planned') { %>
+                  <span class="status-pill status-planned">Planned</span>
+                <% } else if (content.status === 'generated') { %>
+                  <span class="status-pill status-generated">Generated</span>
+                <% } else if (content.status === 'approved') { %>
+                  <span class="status-pill status-approved">Approved</span>
+                <% } else if (content.status === 'published') { %>
+                  <span class="status-pill status-published">Published</span>
+                <% } %>
+                
+                <div class="metadata-label">Publish Date</div>
+                <div class="metadata-value"><%= new Date(content.publishDate).toLocaleDateString() %></div>
+                
+                <div class="metadata-label">Keywords</div>
+                <div class="keywords-container">
+                  <% if (content.keywords) { 
+                    const keywordList = content.keywords.split(',').map(k => k.trim());
+                    keywordList.forEach(keyword => { %>
+                      <span class="keyword-badge"><%= keyword %></span>
+                    <% });
+                  } %>
+                </div>
+                
+                <hr>
+                
+                <div class="d-grid gap-2">
+                  <% if (content.status === 'planned') { %>
+                    <button class="btn btn-primary">
+                      <i class="bi bi-lightning-charge"></i> Generate Content
+                    </button>
+                  <% } else if (content.status === 'generated') { %>
+                    <button class="btn btn-success">
+                      <i class="bi bi-check-lg"></i> Approve Content
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                      <i class="bi bi-arrow-repeat"></i> Regenerate
+                    </button>
+                  <% } else if (content.status === 'approved') { %>
+                    <button class="btn btn-primary">
+                      <i class="bi bi-arrow-up-right-circle"></i> Publish
+                    </button>
+                  <% } %>
+                  <button class="btn btn-outline-secondary">
+                    <i class="bi bi-pencil"></i> Edit Metadata
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card section-navigation">
+              <div class="card-body p-2">
+                <div class="metadata-label mb-2">Jump to Section</div>
+                <a href="#section-intro" class="active">
+                  <i class="bi bi-dot"></i> Introduction
+                </a>
+                <a href="#section-features">
+                  <i class="bi bi-dot"></i> Key Features
+                </a>
+                <a href="#section-benefits">
+                  <i class="bi bi-dot"></i> Benefits
+                </a>
+                <a href="#section-integration">
+                  <i class="bi bi-dot"></i> Integration
+                </a>
+                <a href="#section-conclusion">
+                  <i class="bi bi-dot"></i> Conclusion
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Main Content -->
+          <div class="main-content">
+            <!-- Introduction Section -->
+            <div id="section-intro" class="content-section">
+              <div class="section-toolbar">
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit section">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Regenerate section">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+              <div class="section-header">
+                <h2 class="h5 mb-0">Enhancing Your Home Security: The Evolution of Home Security</h2>
+              </div>
+              <div class="section-content">
+                <p>As summer approaches, the gleam of a sandy beach or a serene mountain cabin calls to many Toronto homeowners. Yet, leaving the nest for a much-needed vacation can conjure anxiety over home security. The traditional deadbolt or a simple alarm system can feel inadequate in providing peace of mind. Thankfully, the evolution of smart security cameras has transformed how we safeguard our homes, allowing families to enjoy their getaway without worrying every moment.</p>
+              </div>
+            </div>
+            
+            <!-- Image Section -->
+            <div class="content-image-container">
+              <img src="<%= content.imageUrl || 'https://via.placeholder.com/800x450' %>" alt="<%= content.topic %>" class="content-image">
+              <div class="image-toolbar">
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Replace image">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Upload new image">
+                  <i class="bi bi-upload"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div id="section-features" class="content-section">
+              <div class="section-toolbar">
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit section">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Regenerate section">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+              <div class="section-header">
+                <h2 class="h5 mb-0">Harnessing the Power of Smart Cameras</h2>
+              </div>
+              <div class="section-content">
+                <p>The advent of the security camera has revolutionized how we safeguard our properties. Today's smart cameras are no longer mere passive observers but advanced sentinels equipped with AI capabilities, transforming how homes are monitored.</p>
+              </div>
+            </div>
+            
+            <!-- Benefits Section -->
+            <div id="section-benefits" class="content-section">
+              <div class="section-toolbar">
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit section">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Regenerate section">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+              <div class="section-header">
+                <h2 class="h5 mb-0">Intelligent Surveillance and Real-Time Alerts</h2>
+              </div>
+              <div class="section-content">
+                <p>Smart cameras, powered by artificial intelligence, offer features such as real-time motion detection and facial recognition. They can differentiate between a stray raccoon and an unfamiliar presence, providing proactive alerts that require your attention. Picture this: you're basking under the summer sun, and a smartphone vibration alerts you that the neighbor's cat, padding sneakily across your porch—not a threat. These smart advancements allow you to enjoy your vacation without unnecessary disturbances.</p>
+              </div>
+            </div>
+            
+            <!-- Integration Section -->
+            <div id="section-integration" class="content-section">
+              <div class="section-toolbar">
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit section">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Regenerate section">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+              <div class="section-header">
+                <h2 class="h5 mb-0">Integration with Smart Ecosystems</h2>
+              </div>
+              <div class="section-content">
+                <p>The seamless integration of smart cameras within your home's technological ecosystem further enhances security. Pairing with smart lights or a smart home assistant, camera systems can brighten your home's surroundings instantly upon detecting unusual activity. This illuminative action can be an effective deterrent—an unexpected flood of light will give all pause to an intruder. Moreover, linking with your ring bell—a crucial part of a comprehensive smart security system—multiplies surveillance and safeguards your sanctuary.</p>
+              </div>
+            </div>
+            
+            <!-- Conclusion Section -->
+            <div id="section-conclusion" class="content-section">
+              <div class="section-toolbar">
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit section">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Regenerate section">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+              <div class="section-header">
+                <h2 class="h5 mb-0">Make Smart Security Work for You Today</h2>
+              </div>
+              <div class="section-content">
+                <p>The combination of smart cameras, ring bells, and smart lighting forms an integrated security solution that caters explicitly to the needs of GTA homeowners. Such tools dissolve distances, granting you the serenity to immerse fully in your summer getaways, knowing your home is under the vigilant eye of cutting-edge technology.</p>
+                <p>Don't let your concern for home security deter you from experiencing the summer of your dreams. <strong>Contact Acetec today</strong> to explore smart security options for your home. Enjoy the peace of mind that comes from knowing a future-ready security system is safeguarding the spaces and people dearest to you.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Preview Tab Content -->
+      <div class="tab-pane fade" id="preview-content">
+        <div class="card">
+          <div class="card-body p-4">
+            <h1 class="h3 mb-4"><%= content.topic %></h1>
+            
+            <div class="my-4 text-center">
+              <img src="<%= content.imageUrl || 'https://via.placeholder.com/800x450' %>" alt="<%= content.topic %>" style="max-width: 100%; border-radius: 10px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);">
+            </div>
+            
+            <div class="preview-content">
+              <h2 class="h5 mb-3">Enhancing Your Home Security: The Evolution of Home Security</h2>
+              <p>As summer approaches, the gleam of a sandy beach or a serene mountain cabin calls to many Toronto homeowners. Yet, leaving the nest for a much-needed vacation can conjure anxiety over home security. The traditional deadbolt or a simple alarm system can feel inadequate in providing peace of mind. Thankfully, the evolution of smart security cameras has transformed how we safeguard our homes, allowing families to enjoy their getaway without worrying every moment.</p>
+              
+              <h2 class="h5 mb-3 mt-4">Harnessing the Power of Smart Cameras</h2>
+              <p>The advent of the security camera has revolutionized how we safeguard our properties. Today's smart cameras are no longer mere passive observers but advanced sentinels equipped with AI capabilities, transforming how homes are monitored.</p>
+              
+              <h2 class="h5 mb-3 mt-4">Intelligent Surveillance and Real-Time Alerts</h2>
+              <p>Smart cameras, powered by artificial intelligence, offer features such as real-time motion detection and facial recognition. They can differentiate between a stray raccoon and an unfamiliar presence, providing proactive alerts that require your attention. Picture this: you're basking under the summer sun, and a smartphone vibration alerts you that the neighbor's cat, padding sneakily across your porch—not a threat. These smart advancements allow you to enjoy your vacation without unnecessary disturbances.</p>
+              
+              <h2 class="h5 mb-3 mt-4">Integration with Smart Ecosystems</h2>
+              <p>The seamless integration of smart cameras within your home's technological ecosystem further enhances security. Pairing with smart lights or a smart home assistant, camera systems can brighten your home's surroundings instantly upon detecting unusual activity. This illuminative action can be an effective deterrent—an unexpected flood of light will give all pause to an intruder. Moreover, linking with your ring bell—a crucial part of a comprehensive smart security system—multiplies surveillance and safeguards your sanctuary.</p>
+              
+              <h2 class="h5 mb-3 mt-4">Make Smart Security Work for You Today</h2>
+              <p>The combination of smart cameras, ring bells, and smart lighting forms an integrated security solution that caters explicitly to the needs of GTA homeowners. Such tools dissolve distances, granting you the serenity to immerse fully in your summer getaways, knowing your home is under the vigilant eye of cutting-edge technology.</p>
+              <p>Don't let your concern for home security deter you from experiencing the summer of your dreams. <strong>Contact Acetec today</strong> to explore smart security options for your home. Enjoy the peace of mind that comes from knowing a future-ready security system is safeguarding the spaces and people dearest to you.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- History Tab Content -->
+      <div class="tab-pane fade" id="history-content">
+        <div class="card">
+          <div class="card-body p-4">
+            <div class="list-group">
+              <a href="#" class="list-group-item list-group-item-action active">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">Current Version</h5>
+                  <small>Today at 2:30 PM</small>
+                </div>
+                <p class="mb-1">Final edits before approval</p>
+              </a>
+              <a href="#" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">Version 2</h5>
+                  <small>Yesterday at 10:15 AM</small>
+                </div>
+                <p class="mb-1">Added section on smart ecosystem integration</p>
+              </a>
+              <a href="#" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">Version 1</h5>
+                  <small>3 days ago</small>
+                </div>
+                <p class="mb-1">Initial AI-generated content</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sticky Action Bar -->
+    <div class="sticky-action-bar">
+      <div class="autosave-indicator saved">
+        <i class="bi bi-check-circle"></i> <span>All changes saved</span>
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-outline-secondary me-2">
+          <i class="bi bi-arrow-left"></i> Back to List
+        </button>
+        <% if (content.status === 'planned') { %>
+          <button class="btn btn-primary">
+            <i class="bi bi-lightning-charge"></i> Generate Content
+          </button>
+        <% } else if (content.status === 'generated') { %>
+          <button class="btn btn-success">
+            <i class="bi bi-check-lg"></i> Approve Content
+          </button>
+        <% } else if (content.status === 'approved') { %>
+          <button class="btn btn-primary">
+            <i class="bi bi-arrow-up-right-circle"></i> Publish
+          </button>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize tooltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+      });
+      
+      // Simulate autosave functionality
+      const editableElements = document.querySelectorAll('.section-content');
+      editableElements.forEach(element => {
+        element.addEventListener('input', function() {
+          const autosaveIndicator = document.querySelector('.autosave-indicator');
+          autosaveIndicator.classList.remove('saved');
+          autosaveIndicator.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+          
+          // Simulate server save delay
+          setTimeout(() => {
+            autosaveIndicator.classList.add('saved');
+            autosaveIndicator.innerHTML = '<i class="bi bi-check-circle"></i> <span>All changes saved</span>';
+          }, 1500);
+        });
+      });
+      
+      // Section navigation
+      const sectionLinks = document.querySelectorAll('.section-navigation a');
+      sectionLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const sectionId = this.getAttribute('href');
+          const section = document.querySelector(sectionId);
+          window.scrollTo({
+            top: section.offsetTop - 20,
+            behavior: 'smooth'
+          });
+          
+          // Update active class
+          sectionLinks.forEach(l => l.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+      
+      // Update active section on scroll
+      window.addEventListener('scroll', function() {
+        const sections = document.querySelectorAll('.content-section');
+        let currentSection = '';
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= (sectionTop - 100)) {
+            currentSection = '#' + section.getAttribute('id');
+          }
+        });
+        
+        if (currentSection) {
+          sectionLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === currentSection) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+      
+      // Add smooth transitions for tab switching
+      const tabLinks = document.querySelectorAll('.nav-tabs .nav-link');
+      tabLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          // Add a small delay to make the transition visible
+          setTimeout(() => {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.classList.add('show');
+            }
+          }, 150);
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
