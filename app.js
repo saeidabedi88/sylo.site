@@ -42,21 +42,29 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Auth Routes (no auth required)
-app.use('/', authRoutes);
+// Public routes (no auth required)
+app.use('/auth', authRoutes);
+
+// Root route redirects to login if not authenticated
+app.get('/', authenticateToken, (req, res) => {
+  res.redirect('/dashboard');
+});
+
+// Apply authentication middleware to all routes except /auth and /health
+app.use((req, res, next) => {
+  if (req.path.startsWith('/auth') || req.path === '/health') {
+    return next();
+  }
+  authenticateToken(req, res, next);
+});
 
 // Protected Routes
 app.use('/api/content', contentRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/users', userRoutes);
 
-// Frontend Routes
-app.get('/', (req, res) => {
-  res.redirect('/login');
-});
-
 // Content detail route (protected)
-app.get('/content/:id', authenticateToken, customerFilter, async (req, res) => {
+app.get('/content/:id', customerFilter, async (req, res) => {
   try {
     // Add customer filter if needed
     const filter = { id: req.params.id, ...req.customerFilter };
