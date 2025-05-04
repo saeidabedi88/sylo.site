@@ -1,7 +1,11 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/database');
 
+<<<<<<< HEAD
 class Content extends Model {}
+=======
+class Content extends Model { }
+>>>>>>> 40e52c36d7674d99ed2aff405555ac7dc6bbc08e
 
 Content.init({
   id: {
@@ -37,6 +41,14 @@ Content.init({
     type: DataTypes.STRING,
     allowNull: true
   },
+<<<<<<< HEAD
+=======
+  customer_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'Foreign key to customer this content belongs to'
+  },
+>>>>>>> 40e52c36d7674d99ed2aff405555ac7dc6bbc08e
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

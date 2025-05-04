@@ -128,6 +128,7 @@ npm start
 - WordPress API integration
 - Meta Graph API integration for Facebook/Instagram
 - User authentication
+<<<<<<< HEAD
 - Analytics dashboard
 
 # Sylo.site
@@ -156,3 +157,6 @@ Deployment is handled automatically through GitHub Actions:
 - System monitoring runs every 5 minutes
 - Database backups run daily at 1:00 AM
 - Logs are available in `/home/sylo/logs/` 
+=======
+- Analytics dashboard 
+>>>>>>> 40e52c36d7674d99ed2aff405555ac7dc6bbc08e

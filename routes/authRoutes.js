@@ -1,4 +1,5 @@
 const express = require('express');
+<<<<<<< HEAD
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
@@ -76,10 +77,34 @@ router.post('/login', [csrfProtection, loginLimiter, loginValidation], async (re
                 title: 'Login',
                 error: 'Invalid email or password',
                 csrfToken: req.csrfToken()
+=======
+const { User } = require('../models');
+const { generateToken } = require('../middleware/auth');
+const router = express.Router();
+
+// Login page
+router.get('/login', (req, res) => {
+    res.render('auth/login', { title: 'Login', error: null });
+});
+
+// Login process
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Find user by email
+        const user = await User.findOne({ where: { email } });
+
+        if (!user || !await user.checkPassword(password)) {
+            return res.render('auth/login', {
+                title: 'Login',
+                error: 'Invalid email or password'
+>>>>>>> 40e52c36d7674d99ed2aff405555ac7dc6bbc08e
             });
         }
 
         if (!user.isActive) {
+<<<<<<< HEAD
             return res.render('login', {
                 title: 'Login',
                 error: 'Account is currently inactive. Please contact support.',
@@ -107,11 +132,39 @@ router.post('/login', [csrfProtection, loginLimiter, loginValidation], async (re
             title: 'Login',
             error: 'An error occurred. Please try again.',
             csrfToken: req.csrfToken()
+=======
+            return res.render('auth/login', {
+                title: 'Login',
+                error: 'This account has been deactivated. Please contact an administrator.'
+            });
+        }
+
+        // Generate JWT token
+        const token = generateToken(user);
+
+        // Update last login time
+        await user.update({ lastLogin: new Date() });
+
+        // Set cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
+
+        // Redirect to dashboard
+        res.redirect('/dashboard');
+    } catch (error) {
+        console.error('Login error:', error);
+        res.render('auth/login', {
+            title: 'Login',
+            error: 'An error occurred during login. Please try again.'
+>>>>>>> 40e52c36d7674d99ed2aff405555ac7dc6bbc08e
         });
     }
 });
 
 // Logout
+<<<<<<< HEAD
 router.post('/logout', authenticateToken, (req, res) => {
     res.clearCookie('token', {
         httpOnly: true,
@@ -247,4 +300,11 @@ router.post('/reset-password/:token', [csrfProtection, passwordValidation], asyn
     }
 });
 
+=======
+router.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/login');
+});
+
+>>>>>>> 40e52c36d7674d99ed2aff405555ac7dc6bbc08e
 module.exports = router; 
