@@ -128,4 +128,31 @@ npm start
 - WordPress API integration
 - Meta Graph API integration for Facebook/Instagram
 - User authentication
-- Analytics dashboard 
+- Analytics dashboard
+
+# Sylo.site
+
+Content Management System for Sylo
+
+## Features
+- Content management and scheduling
+- Multi-platform publishing
+- Automated deployment with GitHub Actions
+- Health monitoring and automated backups
+- Secure deployment with rollback capabilities
+
+## Health Check
+The application provides a health check endpoint at `/health` that returns:
+- Current status
+- Timestamp
+- System uptime
+
+## Deployment
+Deployment is handled automatically through GitHub Actions:
+- Push to `develop` for staging deployment
+- Push to `main` or create a tag (v*) for production deployment
+
+## Monitoring
+- System monitoring runs every 5 minutes
+- Database backups run daily at 1:00 AM
+- Logs are available in `/home/sylo/logs/` 
