@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Profiles | Content Management System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --brand-primary: #2b5197;
+      --brand-secondary: #4071cc;
+      --brand-accent: #55cfcb;
+      --ui-background: #f9fafb;
+      --ui-card: #ffffff;
+      --ui-border: #e4e9f2;
+      --ui-hover: #f2f6fb;
+      --text-primary: #1e1e1e;
+      --text-secondary: #6e7891;
+    }
+    
+    body {
+      background-color: var(--ui-background);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    .navbar {
+      background-color: var(--brand-primary) !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .card {
+      background-color: var(--ui-card);
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(23, 43, 77, 0.08);
+      margin-bottom: 22px;
+      border: none;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    
+    .client-card:hover {
+      box-shadow: 0 5px 15px rgba(23, 43, 77, 0.12);
+      transform: translateY(-3px);
+    }
+    
+    .client-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    .client-status.active {
+      background-color: #10b981;
+    }
+    
+    .client-status.inactive {
+      background-color: #9ca3af;
+    }
+    
+    .hashtags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    
+    .hashtag-badge {
+      background-color: rgba(74, 195, 190, 0.1);
+      color: var(--brand-accent);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    
+    .btn-action {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--brand-primary);
+      border-color: var(--brand-primary);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--brand-secondary);
+      border-color: var(--brand-secondary);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/"><i class="bi bi-lightning-charge"></i> Content Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/"><i class="bi bi-house"></i> Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/clients"><i class="bi bi-building"></i> Client Profiles</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/account"><i class="bi bi-person"></i> Account</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/support"><i class="bi bi-question-circle"></i> Support</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h1 class="h2 mb-0">Client Profiles</h1>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClientModal">
+        <i class="bi bi-plus-lg"></i> Add New Client
+      </button>
+    </div>
+    
+    <div class="row" id="clientsList">
+      <!-- Client cards will be inserted here dynamically -->
+    </div>
+  </div>
+  
+  <!-- Add Client Modal -->
+  <div class="modal fade" id="addClientModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New Client</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="clientForm">
+            <div class="mb-3">
+              <label for="clientName" class="form-label">Client Name</label>
+              <input type="text" class="form-control" id="clientName" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="tone" class="form-label">Brand Tone</label>
+              <input type="text" class="form-control" id="tone" placeholder="e.g., professional, friendly, authoritative" required>
+              <div class="form-text">Comma-separated list of tone attributes</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="audience" class="form-label">Target Audience</label>
+              <input type="text" class="form-control" id="audience" placeholder="e.g., homeowners, families, business owners" required>
+              <div class="form-text">Describe the primary audience for this client's content</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="cta" class="form-label">Call to Action</label>
+              <input type="text" class="form-control" id="cta" placeholder="e.g., Visit example.com for more information" required>
+              <div class="form-text">Default call-to-action for content</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="hashtags" class="form-label">Hashtags</label>
+              <input type="text" class="form-control" id="hashtags" placeholder="e.g., #brand #service #industry" required>
+              <div class="form-text">Comma-separated list of hashtags (include the # symbol)</div>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="isActive" checked>
+              <label class="form-check-label" for="isActive">Active</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveClient">Save Client</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Edit Client Modal -->
+  <div class="modal fade" id="editClientModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Client</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editClientForm">
+            <input type="hidden" id="editClientId">
+            <div class="mb-3">
+              <label for="editClientName" class="form-label">Client Name</label>
+              <input type="text" class="form-control" id="editClientName" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="editTone" class="form-label">Brand Tone</label>
+              <input type="text" class="form-control" id="editTone" required>
+              <div class="form-text">Comma-separated list of tone attributes</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="editAudience" class="form-label">Target Audience</label>
+              <input type="text" class="form-control" id="editAudience" required>
+              <div class="form-text">Describe the primary audience for this client's content</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="editCta" class="form-label">Call to Action</label>
+              <input type="text" class="form-control" id="editCta" required>
+              <div class="form-text">Default call-to-action for content</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="editHashtags" class="form-label">Hashtags</label>
+              <input type="text" class="form-control" id="editHashtags" required>
+              <div class="form-text">Comma-separated list of hashtags (include the # symbol)</div>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="editIsActive">
+              <label class="form-check-label" for="editIsActive">Active</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="updateClient">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fetch all clients
+      fetchClients();
+      
+      // Set up event listeners
+      document.getElementById('saveClient').addEventListener('click', createClient);
+      document.getElementById('updateClient').addEventListener('click', updateClient);
+      
+      // Initialize tooltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });
+    
+    // Fetch all clients
+    async function fetchClients() {
+      try {
+        const response = await fetch('/api/clients');
+        const clients = await response.json();
+        
+        renderClients(clients);
+      } catch (error) {
+        console.error('Error fetching clients:', error);
+        alert('Failed to load clients');
+      }
+    }
+    
+    // Render client cards
+    function renderClients(clients) {
+      const clientsList = document.getElementById('clientsList');
+      clientsList.innerHTML = '';
+      
+      if (clients.length === 0) {
+        clientsList.innerHTML = `
+          <div class="col-12">
+            <div class="card p-4 text-center">
+              <p class="mb-0 text-muted">No clients found. Click "Add New Client" to create your first client profile.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      clients.forEach(client => {
+        const hashtagsHtml = client.config.hashtags ? client.config.hashtags.map(tag => 
+          `<span class="hashtag-badge">${tag}</span>`
+        ).join('') : '';
+        
+        const clientCard = document.createElement('div');
+        clientCard.className = 'col-md-6 col-lg-4 mb-4';
+        clientCard.innerHTML = `
+          <div class="card client-card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">
+                  <span class="client-status ${client.isActive ? 'active' : 'inactive'}"></span>
+                  ${client.name}
+                </h5>
+                <div>
+                  <button class="btn btn-sm btn-outline-primary btn-action edit-client" data-id="${client.id}" data-bs-toggle="tooltip" title="Edit Client">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger btn-action delete-client" data-id="${client.id}" data-bs-toggle="tooltip" title="Delete Client">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="mb-2">
+                <small class="text-muted d-block">Brand Tone:</small>
+                <span>${client.config.tone || 'Not specified'}</span>
+              </div>
+              
+              <div class="mb-2">
+                <small class="text-muted d-block">Target Audience:</small>
+                <span>${client.config.audience || 'Not specified'}</span>
+              </div>
+              
+              <div class="mb-2">
+                <small class="text-muted d-block">Call to Action:</small>
+                <span>${client.config.cta || 'Not specified'}</span>
+              </div>
+              
+              <small class="text-muted d-block">Hashtags:</small>
+              <div class="hashtags-container">
+                ${hashtagsHtml}
+              </div>
+            </div>
+          </div>
+        `;
+        
+        clientsList.appendChild(clientCard);
+        
+        // Add event listeners for edit and delete buttons
+        clientCard.querySelector('.edit-client').addEventListener('click', () => editClientModal(client));
+        clientCard.querySelector('.delete-client').addEventListener('click', () => deleteClient(client.id));
+      });
+    }
+    
+    // Create new client
+    async function createClient() {
+      const name = document.getElementById('clientName').value.trim();
+      const tone = document.getElementById('tone').value.trim();
+      const audience = document.getElementById('audience').value.trim();
+      const cta = document.getElementById('cta').value.trim();
+      const hashtagsInput = document.getElementById('hashtags').value.trim();
+      const isActive = document.getElementById('isActive').checked;
+      
+      if (!name || !tone || !audience || !cta || !hashtagsInput) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Process hashtags - split by commas and trim
+      const hashtags = hashtagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
+      
+      const clientData = {
+        name,
+        config: {
+          tone,
+          audience,
+          cta,
+          hashtags
+        },
+        isActive
+      };
+      
+      try {
+        const response = await fetch('/api/clients', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(clientData)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to create client');
+        }
+        
+        // Reset form and close modal
+        document.getElementById('clientForm').reset();
+        bootstrap.Modal.getInstance(document.getElementById('addClientModal')).hide();
+        
+        // Refresh clients list
+        fetchClients();
+      } catch (error) {
+        console.error('Error creating client:', error);
+        alert(error.message || 'Failed to create client');
+      }
+    }
+    
+    // Open edit client modal
+    function editClientModal(client) {
+      document.getElementById('editClientId').value = client.id;
+      document.getElementById('editClientName').value = client.name;
+      document.getElementById('editTone').value = client.config.tone || '';
+      document.getElementById('editAudience').value = client.config.audience || '';
+      document.getElementById('editCta').value = client.config.cta || '';
+      document.getElementById('editHashtags').value = client.config.hashtags ? client.config.hashtags.join(', ') : '';
+      document.getElementById('editIsActive').checked = client.isActive;
+      
+      const modal = new bootstrap.Modal(document.getElementById('editClientModal'));
+      modal.show();
+    }
+    
+    // Update client
+    async function updateClient() {
+      const id = document.getElementById('editClientId').value;
+      const name = document.getElementById('editClientName').value.trim();
+      const tone = document.getElementById('editTone').value.trim();
+      const audience = document.getElementById('editAudience').value.trim();
+      const cta = document.getElementById('editCta').value.trim();
+      const hashtagsInput = document.getElementById('editHashtags').value.trim();
+      const isActive = document.getElementById('editIsActive').checked;
+      
+      if (!name || !tone || !audience || !cta || !hashtagsInput) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Process hashtags - split by commas and trim
+      const hashtags = hashtagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
+      
+      const clientData = {
+        name,
+        config: {
+          tone,
+          audience,
+          cta,
+          hashtags
+        },
+        isActive
+      };
+      
+      try {
+        const response = await fetch(`/api/clients/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(clientData)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update client');
+        }
+        
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('editClientModal')).hide();
+        
+        // Refresh clients list
+        fetchClients();
+      } catch (error) {
+        console.error('Error updating client:', error);
+        alert(error.message || 'Failed to update client');
+      }
+    }
+    
+    // Delete client
+    async function deleteClient(id) {
+      if (!confirm('Are you sure you want to delete this client?')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/clients/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete client');
+        }
+        
+        // Refresh clients list
+        fetchClients();
+      } catch (error) {
+        console.error('Error deleting client:', error);
+        alert(error.message || 'Failed to delete client');
+      }
+    }
+  </script>
+</body>
+</html> 

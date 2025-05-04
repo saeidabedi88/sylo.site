@@ -1,0 +1,36 @@
+{
+  "name": "bizkit",
+  "version": "1.0.0",
+  "description": "Content Management System for Acetec",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "content",
+    "management",
+    "ai",
+    "gpt"
+  ],
+  "author": "Acetec Team",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.8.4",
+    "bcrypt": "^5.1.1",
+    "connect-sqlite3": "^0.9.15",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.18.1",
+    "form-data": "^4.0.2",
+    "node-fetch": "^2.7.0",
+    "openai": "^4.95.1",
+    "sequelize": "^6.31.0",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}

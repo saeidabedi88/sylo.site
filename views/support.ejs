@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support | Acetec Content Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+  <style>
+    :root {
+      /* Primary Brand Colors */
+      --brand-primary: #2b5197;      /* Deeper blue - main brand color */
+      --brand-secondary: #4071cc;    /* Medium blue - secondary brand color */
+      --brand-accent: #55cfcb;       /* Teal accent color - for highlights */
+      
+      /* UI Colors */
+      --ui-background: #f9fafb;      /* Very light blue-gray for background */
+      --ui-card: #ffffff;            /* White for cards */
+      --ui-border: #e4e9f2;          /* Light gray for borders */
+      --ui-hover: #f2f6fb;           /* Very light blue for hover states */
+      
+      /* Status Colors */
+      --status-open: #ffeecc;        /* Soft yellow for open status */
+      --status-in-progress: #e0f0ff; /* Soft blue for in-progress status */
+      --status-resolved: #dcf5e8;    /* Soft green for resolved status */
+      --status-closed: #e9ecef;      /* Light gray for closed status */
+      
+      /* Text Colors */
+      --text-primary: #1e1e1e;       /* Dark gray for primary text */
+      --text-secondary: #6e7891;     /* Medium gray for secondary text */
+      --text-light: #8f9bb3;         /* Light gray for tertiary text */
+    }
+    
+    body {
+      background-color: var(--ui-background);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    .navbar {
+      background-color: var(--brand-primary) !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 500;
+      line-height: 1.4;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+    
+    .card {
+      background-color: var(--ui-card);
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(23, 43, 77, 0.08);
+      margin-bottom: 22px;
+      border: none;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 5px 15px rgba(23, 43, 77, 0.12);
+    }
+    
+    .btn {
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      font-weight: 500;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-primary {
+      background-color: var(--brand-primary);
+      border-color: var(--brand-primary);
+    }
+    
+    .btn-primary:hover, .btn-primary:focus {
+      background-color: var(--brand-secondary);
+      border-color: var(--brand-secondary);
+    }
+    
+    .btn-outline-secondary {
+      border-color: var(--text-secondary);
+      color: var(--text-secondary);
+    }
+    
+    .btn-outline-secondary:hover {
+      background-color: var(--text-secondary);
+      color: white;
+    }
+    
+    .form-label {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    
+    .form-control {
+      border-radius: 8px;
+      border-color: var(--ui-border);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+      border-color: var(--brand-secondary);
+      box-shadow: 0 0 0 3px rgba(64, 113, 204, 0.15);
+    }
+    
+    .ticket-status {
+      display: inline-block;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-weight: 500;
+    }
+    
+    .ticket-status.open {
+      background-color: var(--status-open);
+      color: #805b10;
+    }
+    
+    .ticket-status.in-progress {
+      background-color: var(--status-in-progress);
+      color: #1a5fb4;
+    }
+    
+    .ticket-status.resolved {
+      background-color: var(--status-resolved);
+      color: #0d6e49;
+    }
+    
+    .ticket-status.closed {
+      background-color: var(--status-closed);
+      color: #495057;
+    }
+    
+    .ticket-card {
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    
+    .ticket-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(23, 43, 77, 0.12);
+    }
+    
+    .ticket-card .card-body {
+      padding: 16px;
+    }
+    
+    .ticket-number {
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .ticket-date {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .nav-tabs {
+      border-bottom-color: var(--ui-border);
+      margin-bottom: 20px;
+    }
+    
+    .nav-tabs .nav-link {
+      color: var(--text-secondary);
+      border: none;
+      padding: 10px 15px;
+      position: relative;
+      font-size: 0.92rem;
+      border-radius: 0;
+      transition: all 0.25s ease;
+      margin-right: 5px;
+    }
+    
+    .nav-tabs .nav-link.active {
+      color: var(--brand-primary);
+      background-color: transparent;
+      font-weight: 600;
+    }
+    
+    .nav-tabs .nav-link.active:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--brand-accent);
+      transition: all 0.25s ease;
+    }
+    
+    .tab-content {
+      padding-top: 10px;
+    }
+    
+    .tab-pane {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .tab-pane.fade {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    
+    .tab-pane.fade.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .divider {
+      height: 1px;
+      background-color: var(--ui-border);
+      margin: 24px 0;
+    }
+    
+    .support-channels {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .support-channel-card {
+      background-color: var(--ui-card);
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(23, 43, 77, 0.08);
+      padding: 20px;
+      text-align: center;
+      transition: all 0.25s ease;
+    }
+    
+    .support-channel-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(23, 43, 77, 0.15);
+    }
+    
+    .support-channel-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--ui-hover);
+      color: var(--brand-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 24px;
+    }
+    
+    .support-channel-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .support-channel-description {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+    }
+    
+    .support-message {
+      border-left: 4px solid var(--brand-accent);
+      padding: 16px;
+      background-color: var(--ui-hover);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+    
+    .support-message p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .ticket-success {
+      display: none;
+      text-align: center;
+      padding: 30px 20px;
+    }
+    
+    .success-icon {
+      font-size: 48px;
+      color: #0d6e49;
+      margin-bottom: 20px;
+    }
+    
+    .ticket-id {
+      font-family: monospace;
+      background-color: var(--ui-hover);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/"><i class="bi bi-lightning-charge"></i> Content Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/"><i class="bi bi-house"></i> Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/account"><i class="bi bi-person"></i> Account</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/support"><i class="bi bi-question-circle"></i> Support</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-4">
+    <h1 class="page-title">Support & Help Center</h1>
+    
+    <div class="row mb-4">
+      <div class="col-12">
+        <ul class="nav nav-tabs" id="supportTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="contact-tab" data-bs-toggle="tab" href="#contact" role="tab">
+              <i class="bi bi-chat-dots"></i> Contact Support
+            </a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="tickets-tab" data-bs-toggle="tab" href="#tickets" role="tab">
+              <i class="bi bi-ticket-perforated"></i> My Tickets
+            </a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="resources-tab" data-bs-toggle="tab" href="#resources" role="tab">
+              <i class="bi bi-book"></i> Resources
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="supportTabContent">
+      <!-- Contact Support Tab -->
+      <div class="tab-pane fade show active" id="contact" role="tabpanel">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-body">
+                <h2 class="section-title">Submit a Support Ticket</h2>
+                <p class="text-secondary mb-4">Our support team is here to help. Please fill out the form below with your question or issue.</p>
+                
+                <div id="ticketForm">
+                  <form id="supportTicketForm">
+                    <div class="mb-3">
+                      <label for="ticketSubject" class="form-label">Subject</label>
+                      <input type="text" class="form-control" id="ticketSubject" placeholder="Brief description of your issue" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="ticketCategory" class="form-label">Category</label>
+                      <select class="form-select" id="ticketCategory" required>
+                        <option value="" selected disabled>Select category</option>
+                        <option value="account">Account Issues</option>
+                        <option value="content">Content Generation</option>
+                        <option value="publishing">Publishing Problems</option>
+                        <option value="billing">Billing Questions</option>
+                        <option value="feature">Feature Request</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="ticketPriority" class="form-label">Priority</label>
+                      <select class="form-select" id="ticketPriority">
+                        <option value="normal" selected>Normal</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                      </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="ticketMessage" class="form-label">Message</label>
+                      <textarea class="form-control" id="ticketMessage" rows="6" placeholder="Please describe your issue in detail" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="ticketAttachment" class="form-label">Attachment (optional)</label>
+                      <input type="file" class="form-control" id="ticketAttachment">
+                      <div class="form-text">Max file size: 10MB. Supported formats: JPG, PNG, PDF.</div>
+                    </div>
+                    
+                    <div class="text-end">
+                      <button type="button" class="btn btn-outline-secondary me-2">Cancel</button>
+                      <button type="submit" class="btn btn-primary" id="submitTicket">Submit Ticket</button>
+                    </div>
+                  </form>
+                </div>
+                
+                <div id="ticketSuccess" class="ticket-success">
+                  <div class="success-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                  </div>
+                  <h3>Ticket Submitted Successfully!</h3>
+                  <p class="mb-4">Your ticket has been received. We'll get back to you as soon as possible.</p>
+                  <p class="mb-4">Your ticket ID is: <span class="ticket-id">ACT-2453</span></p>
+                  <p>You can track the status of your ticket in the "My Tickets" tab.</p>
+                  <button class="btn btn-primary mt-3" id="newTicketBtn">Submit Another Ticket</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-4">
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="mb-3">Other Support Channels</h5>
+                <div class="mb-3">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-telephone me-2"></i>
+                    <strong>Phone Support</strong>
+                  </div>
+                  <p class="mb-2">+1 (888) 555-1234</p>
+                  <small class="text-secondary">Available Mon-Fri, 9AM-5PM ET</small>
+                </div>
+                
+                <div class="mb-3">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-envelope me-2"></i>
+                    <strong>Email Support</strong>
+                  </div>
+                  <p class="mb-0">support@acetec.com</p>
+                </div>
+                
+                <div>
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-chat-dots me-2"></i>
+                    <strong>Live Chat</strong>
+                  </div>
+                  <button class="btn btn-outline-primary btn-sm">Start Chat</button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <h5 class="mb-3">Support Hours</h5>
+                <p class="mb-2"><strong>Monday - Friday:</strong> 9:00 AM - 8:00 PM ET</p>
+                <p class="mb-2"><strong>Saturday:</strong> 10:00 AM - 4:00 PM ET</p>
+                <p class="mb-4"><strong>Sunday:</strong> Closed</p>
+                <div class="support-message">
+                  <p><strong>Note:</strong> For urgent issues outside business hours, please use the emergency contact option in your admin dashboard.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- My Tickets Tab -->
+      <div class="tab-pane fade" id="tickets" role="tabpanel">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="section-title mb-0">My Support Tickets</h2>
+              <button class="btn btn-outline-primary btn-sm" id="newTicketButton">
+                <i class="bi bi-plus-lg"></i> New Ticket
+              </button>
+            </div>
+            
+            <div class="ticket-list">
+              <!-- Open Ticket -->
+              <div class="card ticket-card mb-3">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="ticket-number mb-1">Ticket #ACT-2453</div>
+                      <h5 class="mb-2">Unable to generate content with specific keywords</h5>
+                      <div class="ticket-date mb-2">Submitted on May 15, 2023 • 2 days ago</div>
+                      <span class="ticket-status open">Open</span>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm">View Details</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- In Progress Ticket -->
+              <div class="card ticket-card mb-3">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="ticket-number mb-1">Ticket #ACT-2445</div>
+                      <h5 class="mb-2">Facebook publishing authorization issues</h5>
+                      <div class="ticket-date mb-2">Submitted on May 10, 2023 • 7 days ago</div>
+                      <span class="ticket-status in-progress">In Progress</span>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm">View Details</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Resolved Ticket -->
+              <div class="card ticket-card mb-3">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="ticket-number mb-1">Ticket #ACT-2398</div>
+                      <h5 class="mb-2">Need help setting up WordPress API connection</h5>
+                      <div class="ticket-date mb-2">Submitted on Apr 28, 2023 • 19 days ago</div>
+                      <span class="ticket-status resolved">Resolved</span>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm">View Details</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Closed Ticket -->
+              <div class="card ticket-card mb-3">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="ticket-number mb-1">Ticket #ACT-2356</div>
+                      <h5 class="mb-2">Request for additional user accounts</h5>
+                      <div class="ticket-date mb-2">Submitted on Apr 15, 2023 • 32 days ago</div>
+                      <span class="ticket-status closed">Closed</span>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm">View Details</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Resources Tab -->
+      <div class="tab-pane fade" id="resources" role="tabpanel">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-body">
+                <h2 class="section-title">Help Resources</h2>
+                <p class="text-secondary mb-4">Browse our help documentation and tutorials to get the most out of our platform.</p>
+                
+                <div class="support-channels">
+                  <div class="support-channel-card">
+                    <div class="support-channel-icon">
+                      <i class="bi bi-book"></i>
+                    </div>
+                    <h5 class="support-channel-title">Documentation</h5>
+                    <div class="support-channel-description">
+                      Comprehensive guides and reference materials for all platform features
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm">Browse Docs</button>
+                  </div>
+                  
+                  <div class="support-channel-card">
+                    <div class="support-channel-icon">
+                      <i class="bi bi-play-circle"></i>
+                    </div>
+                    <h5 class="support-channel-title">Video Tutorials</h5>
+                    <div class="support-channel-description">
+                      Step-by-step video instructions for common tasks and features
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm">Watch Videos</button>
+                  </div>
+                  
+                  <div class="support-channel-card">
+                    <div class="support-channel-icon">
+                      <i class="bi bi-people"></i>
+                    </div>
+                    <h5 class="support-channel-title">Community</h5>
+                    <div class="support-channel-description">
+                      Connect with other users and share tips and best practices
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm">Join Forum</button>
+                  </div>
+                  
+                  <div class="support-channel-card">
+                    <div class="support-channel-icon">
+                      <i class="bi bi-laptop"></i>
+                    </div>
+                    <h5 class="support-channel-title">Webinars</h5>
+                    <div class="support-channel-description">
+                      Regular live training sessions with our product specialists
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm">Register</button>
+                  </div>
+                </div>
+                
+                <h4 class="mb-3">Frequently Asked Questions</h4>
+                
+                <div class="accordion" id="supportFaq">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqOne">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                        How do I connect my social media accounts?
+                      </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#supportFaq">
+                      <div class="accordion-body">
+                        <p>To connect your social media accounts, navigate to the Account Settings page and select the "Connected Channels" tab. Click the "Connect" button next to the platform you wish to integrate with, and follow the authentication process to authorize our application.</p>
+                        <p>You'll need to have admin access to the social media accounts you want to connect.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqTwo">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                        What file formats are supported for image uploads?
+                      </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#supportFaq">
+                      <div class="accordion-body">
+                        Our platform supports JPG, PNG, GIF, and WebP formats for image uploads. The maximum file size is 10MB per image. For best results, we recommend using high-resolution images with at least 1200 x 630 pixels for social media posts.
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqThree">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                        How can I schedule content for publishing?
+                      </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#supportFaq">
+                      <div class="accordion-body">
+                        To schedule content, first generate and approve the content piece. Then, on the content detail page, click the "Schedule" button instead of "Publish Now." You can set a specific date and time for publishing, and our system will automatically post the content to the selected platform at the scheduled time.
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqFour">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                        Can I customize the AI prompts for content generation?
+                      </button>
+                    </h2>
+                    <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#supportFaq">
+                      <div class="accordion-body">
+                        Yes, you can customize the AI prompts used for content generation. In the Admin settings, navigate to "AI Configuration" and select "Prompt Templates." Here you can create custom prompts for different content types, platforms, and industries. You can also save your most successful prompts as templates for future use.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-4">
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="mb-3">Popular Articles</h5>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item border-0 px-0">
+                    <a href="#" class="text-decoration-none">Getting Started Guide</a>
+                  </li>
+                  <li class="list-group-item border-0 px-0">
+                    <a href="#" class="text-decoration-none">Best Practices for Content Creation</a>
+                  </li>
+                  <li class="list-group-item border-0 px-0">
+                    <a href="#" class="text-decoration-none">Platform Integration Guide</a>
+                  </li>
+                  <li class="list-group-item border-0 px-0">
+                    <a href="#" class="text-decoration-none">Content Approval Workflow</a>
+                  </li>
+                  <li class="list-group-item border-0 px-0">
+                    <a href="#" class="text-decoration-none">Optimizing AI-Generated Content</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <h5 class="mb-3">Need Advanced Support?</h5>
+                <p class="mb-3">Our premium support plans include dedicated account managers and priority assistance.</p>
+                <button class="btn btn-primary">Upgrade Support Plan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Tab switching with animation
+      const tabLinks = document.querySelectorAll('#supportTabs .nav-link');
+      tabLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          setTimeout(() => {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.classList.add('show');
+            }
+          }, 150);
+        });
+      });
+      
+      // Ticket form submission
+      const supportForm = document.getElementById('supportTicketForm');
+      const ticketForm = document.getElementById('ticketForm');
+      const ticketSuccess = document.getElementById('ticketSuccess');
+      
+      if (supportForm) {
+        supportForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Simulate form submission (would normally be an API call)
+          setTimeout(() => {
+            // Generate a random ticket ID
+            const ticketId = 'ACT-' + Math.floor(Math.random() * 9000 + 1000);
+            document.querySelector('.ticket-id').textContent = ticketId;
+            
+            // Show success message
+            ticketForm.style.display = 'none';
+            ticketSuccess.style.display = 'block';
+          }, 1500);
+        });
+      }
+      
+      // New ticket button
+      const newTicketBtn = document.getElementById('newTicketBtn');
+      if (newTicketBtn) {
+        newTicketBtn.addEventListener('click', function() {
+          // Reset form
+          supportForm.reset();
+          
+          // Switch back to form
+          ticketSuccess.style.display = 'none';
+          ticketForm.style.display = 'block';
+        });
+      }
+      
+      // New ticket button from tickets tab
+      const newTicketButton = document.getElementById('newTicketButton');
+      if (newTicketButton) {
+        newTicketButton.addEventListener('click', function() {
+          // Switch to contact tab
+          document.getElementById('contact-tab').click();
+        });
+      }
+    });
+  </script>
+</body>
+</html> 

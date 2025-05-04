@@ -1,0 +1,158 @@
+const express = require('express');
+const path = require('path');
+const dotenv = require('dotenv');
+const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
+
+// Load environment variables
+dotenv.config();
+
+// Import routes
+const contentRoutes = require('./routes/contentRoutes');
+const authRoutes = require('./routes/authRoutes');
+
+// Import middleware
+const { addUserToLocals, isAuthenticated } = require('./middleware/auth');
+
+// Import database connection and models
+const sequelize = require('./config/database');
+const User = require('./models/User');
+
+// Initialize Express
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Session configuration
+app.use(session({
+  store: new SQLiteStore({
+    db: 'sessions.sqlite',
+    dir: __dirname
+  }),
+  secret: process.env.SESSION_SECRET || 'bizkit-secret-key-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
+  }
+}));
+
+// Add user data to all views
+app.use(addUserToLocals);
+
+// View engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Auth Routes
+app.use('/', authRoutes);
+
+// API Routes
+app.use('/api/content', isAuthenticated, contentRoutes);
+
+// Frontend Routes
+app.get('/', isAuthenticated, async (req, res) => {
+  try {
+    const filter = {};
+    const platform = req.query.platform && req.query.platform !== 'all' ? req.query.platform : null;
+    
+    // Add platform filter if provided
+    if (platform) {
+      filter.platform = platform;
+    }
+    
+    // Fetch content directly here to avoid additional API call
+    const Content = require('./models/Content');
+    const content = await Content.findAll({ 
+      where: filter,
+      order: [['publishDate', 'ASC']] 
+    });
+    
+    res.render('index', { 
+      title: 'Content Management System',
+      content: content,
+      platform: platform
+    });
+  } catch (error) {
+    console.error('Error fetching content:', error);
+    res.render('index', { 
+      title: 'Content Management System',
+      content: [],
+      platform: null,
+      error: 'Failed to fetch content'
+    });
+  }
+});
+
+// Content detail route
+app.get('/content/:id', isAuthenticated, async (req, res) => {
+  try {
+    const Content = require('./models/Content');
+    const content = await Content.findByPk(req.params.id);
+    
+    if (!content) {
+      return res.status(404).render('error', { message: 'Content not found' });
+    }
+    
+    res.render('content', { 
+      content: content
+    });
+  } catch (error) {
+    console.error('Error fetching content details:', error);
+    res.status(500).render('error', { message: 'Error loading content details' });
+  }
+});
+
+// Account settings route
+app.get('/account', isAuthenticated, (req, res) => {
+  res.render('account', {
+    title: 'Account Settings'
+  });
+});
+
+// Support route
+app.get('/support', isAuthenticated, (req, res) => {
+  res.render('support', {
+    title: 'Support & Help Center'
+  });
+});
+
+// 404 handler
+app.use((req, res, next) => {
+  res.status(404).render('error', { message: 'Page not found' });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).render('error', { message: 'Server error' });
+});
+
+// Initialize database and start server
+const initApp = async () => {
+  try {
+    // Sync all models with database
+    await sequelize.sync({ alter: true });
+    console.log('Database synced successfully');
+    
+    // Create admin user if it doesn't exist
+    await User.createAdminIfNone();
+    
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+    process.exit(1);
+  }
+};
+
+// Start the application
+initApp(); 

@@ -1,0 +1,105 @@
+1. Objective
+Build a lean, end‑to‑end system for planning, AI‑driven draft generation, human review, and scheduled publishing of content—starting with a desktop dashboard and supporting WordPress blogs plus Facebook/Instagram posts for Acetec.ca.
+
+2. Tech Stack
+Backend: FastAPI (async, OpenAPI docs)
+
+LLM Integration: OpenAI Python SDK (GPT‑3.5/4)
+
+Database: SQLite via SQLModel
+
+Frontend: React (static build served by FastAPI on port 8000)
+
+Scheduler: APScheduler in FastAPI for timed publishes
+
+3. Roles & Responsibilities
+Mehdi (Marketer): Define monthly themes, oversee content calendar, set brand/voice guidelines for Acetec.ca, approve plans & drafts.
+
+Amir (Developer): Build FastAPI endpoints, LLM integration, database models, React dashboard UI.
+
+Saeid (Networker): Setup deployment (Docker or server), configure scheduler, manage API credentials and publishing integrations.
+
+4. Content Calendar & Schema
+Each row in the calendar includes:
+
+Date (e.g. 2025‑05‑01)
+
+Title (“Shared Services Spotlight”)
+
+Description (short brief)
+
+Channels (WordPress, Facebook, Instagram)
+
+Status (Planned → Approved → Draft Generated → Approved → Published)
+
+Notes (keywords, revision comments)
+
+5. Workflow & Status Transitions
+Plan Creation: Populate calendar with “Planned” entries for Acetec.ca’s Shared Services topics.
+
+Plan Approval: Bulk‑approve all rows (status → Approved) to unlock generation.
+
+Bulk Draft Generation: Send all approved rows’ context in one LLM call; status → Draft Generated.
+
+Draft Review: Inline editor per row; on edit & “Approve” click, status → Approved.
+
+Scheduled Publishing: APScheduler checks daily, publishes any Approved row on/after its date, then status → Published.
+
+6. Channels & Monthly Cadence
+Total Pieces: 12 per month
+
+4 WordPress blog articles (weekly)
+
+8 Meta social posts (4 Facebook + 4 Instagram)
+
+Flexible Selection: Each calendar row can target one or more channels.
+
+7. Authentication & Access Control
+Roles: Admin (full access) vs. Editor (create/edit/approve)
+
+Method: Session‑based auth via FastAPI’s secure cookie support.
+
+8. Timeline & Milestones (6 Weeks)
+Week 1: Finalize schema, set up FastAPI project & database, serve React build.
+
+Week 2–3: Implement core endpoints (plans, approve, generate, items, approve item).
+
+Week 4: Build React calendar UI, inline editor, approval controls.
+
+Week 5: Integrate bulk LLM call and draft parsing.
+
+Week 6: Scheduler for publishing, end‑to‑end testing, deploy to staging.
+
+9. Error Handling & Monitoring
+Logging: Every status change logged (generation errors, publish failures).
+
+UI Alerts: Dashboard highlights rows with errors.
+
+Retries: Scheduler retries failed publishes up to 3 times.
+
+10. Testing Strategy
+Unit Tests: API endpoints and LLM integration (using mocks).
+
+Integration Tests: Calendar→generate→approve→publish flow.
+
+Manual QA: Verify React UI workflows; test publishing connectors.
+
+11. Deployment & Hosting
+Environment: Docker Compose on port 8000.
+
+CI/CD: Pipeline to build backend & frontend, migrate DB, start services.
+
+Rollback: Keep last two images for quick redeploy.
+
+12. Analytics & Reporting
+Metrics: Drafts generated, approval times, publish success rate.
+
+Dashboard Tab: “Stats” view with monthly totals and timelines.
+
+13. Brand & Voice Guidelines
+System Prompt:
+“You are Acetec.ca’s content specialist. Write in a clear, trustworthy, and supportive tone that highlights our Shared Services program benefits.”
+
+Length: Blog ~200 words; social ~100 words.
+
+Style: Professional, client‑focused, include relevant calls‑to‑action (e.g., “Learn more at acetec.ca”).

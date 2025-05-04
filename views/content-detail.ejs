@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= content.topic %> | Acetec Content Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+  <style>
+    :root {
+      /* Primary Brand Colors - Updated colors */
+      --brand-primary: #2b5197;      /* Deeper blue - less intense than before */
+      --brand-secondary: #4071cc;    /* Medium blue - secondary brand color */
+      --brand-accent: #55cfcb;       /* Slightly brighter teal accent for contrast */
+      
+      /* UI Colors */
+      --ui-background: #f9fafb;      /* Very light blue-gray for background */
+      --ui-card: #ffffff;            /* White for cards */
+      --ui-border: #e4e9f2;          /* Light gray for borders */
+      --ui-hover: #f2f6fb;           /* Very light blue for hover states */
+      --ui-section-bg: #f8fafc;      /* Light background for content sections */
+      
+      /* Status Colors */
+      --status-planned: #e9ecef;     /* Light gray for planned status */
+      --status-generated: #ffeecc;   /* Soft yellow for generated status */
+      --status-approved: #dcf5e8;    /* Soft green for approved status */
+      --status-published: #e0f0ff;   /* Soft blue for published status */
+      
+      /* Text Colors */
+      --text-primary: #1e1e1e;       /* Dark gray for primary text instead of black */
+      --text-secondary: #6e7891;     /* Medium gray for secondary text */
+      --text-light: #8f9bb3;         /* Light gray for tertiary text */
+    }
+    
+    body {
+      background-color: var(--ui-background);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    .navbar {
+      background-color: var(--brand-primary) !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 500;
+      line-height: 1.4;
+      margin-bottom: 20px;
+      max-width: 90%;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 26px;
+      margin-top: 1.5rem;
+    }
+    
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      height: calc(100vh - 130px);
+      overflow-y: auto;
+    }
+    
+    .card {
+      background-color: var(--ui-card);
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(23, 43, 77, 0.08);
+      margin-bottom: 22px;
+      border: none;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    
+    .sidebar .card {
+      font-size: 0.92rem;
+    }
+    
+    .metadata-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    
+    .metadata-value {
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+    
+    .keywords-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 15px;
+    }
+    
+    .keyword-badge {
+      background-color: rgba(74, 195, 190, 0.1);
+      color: var(--brand-accent);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    
+    .platform-pill {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      background-color: rgba(57, 101, 192, 0.1);
+      color: var(--brand-secondary);
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+    
+    .status-pill {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+    
+    .status-planned {
+      background-color: var(--status-planned);
+      color: #495057;
+    }
+    
+    .status-generated {
+      background-color: var(--status-generated);
+      color: #805b10;
+    }
+    
+    .status-approved {
+      background-color: var(--status-approved);
+      color: #0d6e49;
+    }
+    
+    .status-published {
+      background-color: var(--status-published);
+      color: #1a5fb4;
+    }
+    
+    .content-section {
+      position: relative;
+      padding: 26px 24px;
+      margin-bottom: 26px;
+      border: 1px solid var(--ui-border);
+      border-radius: 10px;
+      background-color: var(--ui-card);
+      transition: all 0.25s ease;
+    }
+    
+    .content-section:hover {
+      box-shadow: 0 6px 16px rgba(23, 43, 77, 0.12);
+    }
+    
+    .content-section:hover .section-toolbar {
+      opacity: 1;
+    }
+    
+    .section-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background-color: var(--ui-card);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+      display: flex;
+      gap: 6px;
+    }
+    
+    .section-toolbar .btn {
+      padding: 0.3rem 0.55rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+    }
+    
+    .content-image-container {
+      position: relative;
+      margin: 24px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    
+    .content-image-container:hover .image-toolbar {
+      opacity: 1;
+    }
+    
+    .content-image {
+      width: 100%;
+      border-radius: 10px;
+    }
+    
+    .instagram-image-container {
+      position: relative;
+      margin: 0 0 24px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    
+    .instagram-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    
+    .instagram-caption {
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    
+    .caption-counter {
+      font-size: 0.8rem;
+    }
+    
+    .hashtag-pill {
+      display: inline-block;
+      background-color: rgba(74, 195, 190, 0.1);
+      color: var(--brand-accent);
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .hashtags-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .facebook-image-container {
+      position: relative;
+      margin: 0 0 24px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    
+    .facebook-image {
+      width: 100%;
+      aspect-ratio: 1.91 / 1;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    
+    .facebook-metrics-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding: 12px 16px;
+      background-color: #f5f7fa;
+      border-radius: 8px;
+    }
+    
+    .metric-item {
+      margin-right: 15px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .metric-item i {
+      margin-right: 5px;
+    }
+    
+    .image-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+      display: flex;
+      gap: 6px;
+    }
+    
+    .image-toolbar .btn {
+      padding: 0.3rem 0.55rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+    }
+    
+    .carousel-indicator {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+    }
+    
+    .carousel-indicator span {
+      width: 8px;
+      height: 8px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+    }
+    
+    .carousel-indicator span.active {
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/"><i class="bi bi-lightning-charge"></i> Content Manager</a>
+    </div>
+  </nav>
+
+  <div class="container my-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <a href="/" class="btn btn-outline-secondary btn-sm mb-2">
+          <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+        <h1 class="page-title"><%= content.topic %></h1>
+      </div>
+      <div>
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" id="edit-tab" data-bs-toggle="tab" href="#edit-content">
+              <i class="bi bi-pencil-square"></i> Edit
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="preview-tab" data-bs-toggle="tab" href="#preview-content">
+              <i class="bi bi-eye"></i> Preview
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="edit-content">
+        <div class="content-wrapper">
+          <!-- Sidebar -->
+          <div class="sidebar">
+            <div class="card">
+              <div class="card-body">
+                <div class="metadata-label">Platform</div>
+                <span class="platform-pill"><%= content.platform.charAt(0).toUpperCase() + content.platform.slice(1) %></span>
+                
+                <div class="metadata-label">Status</div>
+                <% if (content.status === 'planned') { %>
+                  <span class="status-pill status-planned">Planned</span>
+                <% } else if (content.status === 'generated') { %>
+                  <span class="status-pill status-generated">Generated</span>
+                <% } else if (content.status === 'approved') { %>
+                  <span class="status-pill status-approved">Approved</span>
+                <% } else if (content.status === 'published') { %>
+                  <span class="status-pill status-published">Published</span>
+                <% } %>
+                
+                <div class="metadata-label">Publish Date</div>
+                <div class="metadata-value"><%= new Date(content.publishDate).toLocaleDateString() %></div>
+                
+                <div class="metadata-label">Keywords</div>
+                <div class="keywords-container">
+                  <% if (content.keywords) { 
+                    const keywordList = content.keywords.split(',').map(k => k.trim());
+                    keywordList.forEach(keyword => { %>
+                      <span class="keyword-badge"><%= keyword %></span>
+                    <% });
+                  } %>
+                </div>
+                
+                <hr>
+                
+                <div class="d-grid gap-2">
+                  <% if (content.status === 'planned') { %>
+                    <button class="btn btn-primary generate-btn" data-id="<%= content.id %>">
+                      <i class="bi bi-lightning-charge"></i> Generate Content
+                    </button>
+                  <% } else if (content.status === 'generated') { %>
+                    <button class="btn btn-success approve-btn" data-id="<%= content.id %>">
+                      <i class="bi bi-check-lg"></i> Approve Content
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                      <i class="bi bi-arrow-repeat"></i> Regenerate
+                    </button>
+                  <% } else if (content.status === 'approved') { %>
+                    <button class="btn btn-primary publish-btn" data-id="<%= content.id %>">
+                      <i class="bi bi-arrow-up-right-circle"></i> Publish
+                    </button>
+                  <% } %>
+                  <button class="btn btn-outline-secondary">
+                    <i class="bi bi-pencil"></i> Edit Metadata
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Main Content -->
+          <div class="main-content">
+            <% if (content.platform === 'wordpress') { %>
+              <!-- WordPress Blog Layout -->
+              <!-- Introduction Section -->
+              <div id="section-intro" class="content-section">
+                <div class="section-toolbar">
+                  <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit section">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Regenerate section">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+                </div>
+                <div class="section-header">
+                  <h2 class="h5 mb-0">Enhancing Your Home Security: The Evolution of Home Security</h2>
+                </div>
+                <div class="section-content">
+                  <p>As summer approaches, the gleam of a sandy beach or a serene mountain cabin calls to many Toronto homeowners. Yet, leaving the nest for a much-needed vacation can conjure anxiety over home security. The traditional deadbolt or a simple alarm system can feel inadequate in providing peace of mind. Thankfully, the evolution of smart security cameras has transformed how we safeguard our homes, allowing families to enjoy their getaway without worrying every moment.</p>
+                </div>
+              </div>
+              
+              <!-- Image Section -->
+              <div class="content-image-container">
+                <img src="<%= content.imageUrl || 'https://via.placeholder.com/800x450' %>" alt="<%= content.topic %>" class="content-image">
+                <div class="image-toolbar">
+                  <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Replace image">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Upload new image">
+                    <i class="bi bi-upload"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Additional WordPress blog sections -->
+              <div id="section-features" class="content-section">
+                <div class="section-toolbar">
+                  <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit section">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Regenerate section">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+                </div>
+                <div class="section-header">
+                  <h2 class="h5 mb-0">Harnessing the Power of Smart Cameras</h2>
+                </div>
+                <div class="section-content">
+                  <p>The advent of the security camera has revolutionized how we safeguard our properties. Today's smart cameras are no longer mere passive observers but advanced sentinels equipped with AI capabilities, transforming how homes are monitored.</p>
+                </div>
+              </div>
+              
+              <!-- More WordPress sections as needed -->
+              <div id="section-benefits" class="content-section">
+                <div class="section-toolbar">
+                  <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit section">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Regenerate section">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+                </div>
+                <div class="section-header">
+                  <h2 class="h5 mb-0">Intelligent Surveillance and Real-Time Alerts</h2>
+                </div>
+                <div class="section-content">
+                  <p>Smart cameras, powered by artificial intelligence, offer features such as real-time motion detection and facial recognition. They can differentiate between a stray raccoon and an unfamiliar presence, providing proactive alerts that require your attention. Picture this: you're basking under the summer sun, and a smartphone vibration alerts you that the neighbor's cat, padding sneakily across your porch—not a threat. These smart advancements allow you to enjoy your vacation without unnecessary disturbances.</p>
+                </div>
+              </div>
+            <% } else if (content.platform === 'instagram') { %>
+              <!-- Instagram Layout (Visual First, Short Form) -->
+              <div class="instagram-content">
+                <!-- Hero Image (Larger, front and center) -->
+                <div class="instagram-image-container mb-4">
+                  <img src="<%= content.imageUrl || 'https://via.placeholder.com/800x800' %>" alt="<%= content.topic %>" class="instagram-image img-fluid">
+                  
+                  <!-- Image controls -->
+                  <div class="image-toolbar">
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Replace image">
+                      <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Upload new image">
+                      <i class="bi bi-upload"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Add to carousel">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </div>
+                  
+                  <!-- Carousel indicator (if multiple images) -->
+                  <div class="carousel-indicator">
+                    <span class="active"></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+                
+                <!-- Caption Section (1-2 lines max) -->
+                <div class="instagram-caption-container content-section mb-3">
+                  <div class="section-toolbar">
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit caption">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Generate caption">
+                      <i class="bi bi-magic"></i>
+                    </button>
+                  </div>
+                  <div class="section-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Caption</h5>
+                    <span class="caption-counter text-secondary">120/2200</span>
+                  </div>
+                  <div class="section-content">
+                    <p class="instagram-caption">Upgrade your home security with our smart camera systems. Peace of mind when you're away is just a tap away. #SmartHome #Security</p>
+                  </div>
+                </div>
+                
+                <!-- Hashtags Block (styled as pills) -->
+                <div class="instagram-hashtags-container content-section">
+                  <div class="section-toolbar">
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit hashtags">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Generate hashtags">
+                      <i class="bi bi-magic"></i>
+                    </button>
+                  </div>
+                  <div class="section-header">
+                    <h5 class="mb-0">Hashtags</h5>
+                  </div>
+                  <div class="section-content">
+                    <div class="hashtags-pills">
+                      <span class="hashtag-pill">#HomeSecurity</span>
+                      <span class="hashtag-pill">#SmartHome</span>
+                      <span class="hashtag-pill">#SecurityCamera</span>
+                      <span class="hashtag-pill">#HomeAutomation</span>
+                      <span class="hashtag-pill">#SmartTech</span>
+                      <span class="hashtag-pill">#SecuritySystem</span>
+                      <span class="hashtag-pill">#SafeHome</span>
+                      <span class="hashtag-pill">#AcetecSecurity</span>
+                      <span class="hashtag-pill">#PeaceOfMind</span>
+                      <span class="hashtag-pill">#SmartLiving</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% } else if (content.platform === 'facebook') { %>
+              <!-- Facebook Layout (Engagement Focused) -->
+              <div class="facebook-content">
+                <!-- Image on Top -->
+                <div class="facebook-image-container mb-4">
+                  <img src="<%= content.imageUrl || 'https://via.placeholder.com/1200x630' %>" alt="<%= content.topic %>" class="facebook-image img-fluid">
+                  
+                  <!-- Image controls -->
+                  <div class="image-toolbar">
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Replace image">
+                      <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Upload new image">
+                      <i class="bi bi-upload"></i>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Full Post Text (1-3 short paragraphs) -->
+                <div class="facebook-post-container content-section mb-3">
+                  <div class="section-toolbar">
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit post">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Generate post">
+                      <i class="bi bi-magic"></i>
+                    </button>
+                  </div>
+                  <div class="section-header">
+                    <h5 class="mb-0">Post Content</h5>
+                  </div>
+                  <div class="section-content">
+                    <p>🏡 <strong>Smart Home Security for Your Peace of Mind</strong> 🏡</p>
+                    <p>Summer vacation season is here! But are you worried about leaving your home unattended? Our smart security cameras give you real-time monitoring and alerts directly to your phone, so you can enjoy your time away knowing your home is protected.</p>
+                    <p>🔹 Motion detection with AI recognition<br>
+                    🔹 Instant smartphone notifications<br>
+                    🔹 Night vision and weather-resistant<br>
+                    🔹 Easy integration with your existing smart home setup</p>
+                  </div>
+                </div>
+                
+                <!-- Optional CTA Section -->
+                <div class="facebook-cta-container content-section mb-3">
+                  <div class="section-toolbar">
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit CTA">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Remove CTA">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                  <div class="section-header">
+                    <h5 class="mb-0">Call to Action</h5>
+                  </div>
+                  <div class="section-content">
+                    <p>💬 <strong>What's your biggest concern when leaving your home for vacation?</strong> Comment below and let us know how you currently handle home security!</p>
+                    <p>Want to learn more about our smart security solutions? Visit our website or call us at (555) 123-4567 for a free consultation.</p>
+                  </div>
+                </div>
+                
+                <!-- Engagement Metrics Preview -->
+                <div class="facebook-metrics-container">
+                  <div class="metrics-preview">
+                    <span class="metric-item"><i class="bi bi-hand-thumbs-up"></i> 0 Likes</span>
+                    <span class="metric-item"><i class="bi bi-chat-left"></i> 0 Comments</span>
+                    <span class="metric-item"><i class="bi bi-share"></i> 0 Shares</span>
+                  </div>
+                  <div class="preview-button">
+                    <button class="btn btn-outline-primary btn-sm">
+                      <i class="bi bi-facebook"></i> Preview on Facebook
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Preview Tab Content -->
+      <div class="tab-pane fade" id="preview-content">
+        <div class="card">
+          <div class="card-body p-4">
+            <h1 class="h3 mb-4"><%= content.topic %></h1>
+            
+            <div class="my-4 text-center">
+              <img src="<%= content.imageUrl || 'https://via.placeholder.com/800x450' %>" alt="<%= content.topic %>" style="max-width: 100%; border-radius: 10px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);">
+            </div>
+            
+            <div class="preview-content">
+              <%= content.content %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sticky Action Bar -->
+    <div class="sticky-action-bar">
+      <div class="autosave-indicator saved">
+        <i class="bi bi-check-circle"></i> <span>All changes saved</span>
+      </div>
+      <div class="action-buttons">
+        <a href="/" class="btn btn-outline-secondary me-2">
+          <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+        <% if (content.status === 'planned') { %>
+          <button class="btn btn-primary generate-btn" data-id="<%= content.id %>">
+            <i class="bi bi-lightning-charge"></i> Generate Content
+          </button>
+        <% } else if (content.status === 'generated') { %>
+          <button class="btn btn-success approve-btn" data-id="<%= content.id %>">
+            <i class="bi bi-check-lg"></i> Approve Content
+          </button>
+        <% } else if (content.status === 'approved') { %>
+          <button class="btn btn-primary publish-btn" data-id="<%= content.id %>">
+            <i class="bi bi-arrow-up-right-circle"></i> Publish
+          </button>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize tooltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+      });
+      
+      // Generate button
+      const generateBtn = document.querySelector('.generate-btn');
+      if (generateBtn) {
+        generateBtn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          this.disabled = true;
+          this.textContent = 'Generating...';
+          
+          fetch(`/api/content/${id}/generate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Reload page to show generated content
+            window.location.reload();
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to generate content. Please try again.');
+            this.disabled = false;
+            this.textContent = 'Generate';
+          });
+        });
+      }
+      
+      // Approve button
+      const approveBtn = document.querySelector('.approve-btn');
+      if (approveBtn) {
+        approveBtn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          this.disabled = true;
+          this.textContent = 'Approving...';
+          
+          fetch(`/api/content/${id}/approve`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Reload page to show approved status
+            window.location.reload();
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to approve content. Please try again.');
+            this.disabled = false;
+            this.textContent = 'Approve';
+          });
+        });
+      }
+      
+      // Publish button
+      const publishBtn = document.querySelector('.publish-btn');
+      if (publishBtn) {
+        publishBtn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          this.disabled = true;
+          this.textContent = 'Publishing...';
+          
+          fetch(`/api/content/${id}/publish`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            alert(`Content published successfully to ${data.content.platform}!`);
+            // Reload page to show published status
+            window.location.reload();
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to publish content. Please try again.');
+            this.disabled = false;
+            this.textContent = 'Publish';
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html> 
