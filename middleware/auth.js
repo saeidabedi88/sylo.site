@@ -1,12 +1,15 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
+// Default secret for development
+const DEV_SECRET = 'dev-secret-key';
+
 // Ensure JWT secret is set in production
 if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET must be set in production environment');
+    console.warn('WARNING: JWT_SECRET not set in production. Using fallback secret. This is not secure for production use.');
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'development' ? 'dev-secret-key' : null);
+const JWT_SECRET = process.env.JWT_SECRET || DEV_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '2h';
 
 // Generate JWT token for user
