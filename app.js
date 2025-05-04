@@ -1,15 +1,23 @@
 const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
 
 // Load environment variables
 dotenv.config();
 
 // Import routes
 const contentRoutes = require('./routes/contentRoutes');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
-// Import database connection
+// Import database connection and models
 const sequelize = require('./config/database');
+const models = require('./models');
+
+// Import middleware
+const { authenticateToken, customerFilter } = require('./middleware/auth');
 
 // Initialize Express
 const app = express();
@@ -19,65 +27,54 @@ const PORT = process.env.PORT || 3001;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
 
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// API Routes
+// Auth Routes (no auth required)
+app.use('/', authRoutes);
+
+// Protected Routes
 app.use('/api/content', contentRoutes);
+app.use('/dashboard', dashboardRoutes);
+app.use('/users', userRoutes);
 
 // Frontend Routes
-app.get('/', async (req, res) => {
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
+
+// Content detail route (protected)
+app.get('/content/:id', authenticateToken, customerFilter, async (req, res) => {
   try {
-    const filter = {};
-    const platform = req.query.platform && req.query.platform !== 'all' ? req.query.platform : null;
-    
-    // Add platform filter if provided
-    if (platform) {
-      filter.platform = platform;
+    // Add customer filter if needed
+    const filter = { id: req.params.id, ...req.customerFilter };
+
+    const content = await models.Content.findOne({ where: filter });
+
+    if (!content) {
+      return res.status(404).render('error', {
+        message: 'Content not found or you do not have permission to view it'
+      });
     }
-    
-    // Fetch content directly here to avoid additional API call
-    const Content = require('./models/Content');
-    const content = await Content.findAll({ 
-      where: filter,
-      order: [['publishDate', 'ASC']] 
-    });
-    
-    res.render('index', { 
-      title: 'Content Management System',
+
+    res.render('content', {
       content: content,
-      platform: platform
+      user: req.user
     });
   } catch (error) {
-    console.error('Error fetching content:', error);
-    res.render('index', { 
-      title: 'Content Management System',
-      content: [],
-      platform: null,
-      error: 'Failed to fetch content'
+    console.error('Error fetching content details:', error);
+    res.status(500).render('error', {
+      message: 'Error loading content details'
     });
   }
 });
 
-// Content detail route
-app.get('/content/:id', async (req, res) => {
-  try {
-    const Content = require('./models/Content');
-    const content = await Content.findByPk(req.params.id);
-    
-    if (!content) {
-      return res.status(404).send('Content not found');
-    }
-    
-    res.render('content', { 
-      content: content
-    });
-  } catch (error) {
-    console.error('Error fetching content details:', error);
-    res.status(500).send('Error loading content details');
-  }
+// Error page
+app.use((req, res) => {
+  res.status(404).render('error', { message: 'Page not found' });
 });
 
 // Start server
