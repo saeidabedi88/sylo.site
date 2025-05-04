@@ -1,11 +1,7 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/database');
 
-<<<<<<< HEAD
-class Content extends Model {}
-=======
 class Content extends Model { }
->>>>>>> 40e52c36d7674d99ed2aff405555ac7dc6bbc08e
 
 Content.init({
   id: {
@@ -41,14 +37,11 @@ Content.init({
     type: DataTypes.STRING,
     allowNull: true
   },
-<<<<<<< HEAD
-=======
   customer_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
     comment: 'Foreign key to customer this content belongs to'
   },
->>>>>>> 40e52c36d7674d99ed2aff405555ac7dc6bbc08e
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
@@ -66,14 +59,16 @@ Content.init({
 // Sync model with database
 const syncModel = async () => {
   try {
-    await Content.sync();
+    await Content.sync({ alter: true }); // Use alter:true to add new columns
     console.log('Content model synchronized with database.');
   } catch (error) {
     console.error('Failed to synchronize Content model:', error);
   }
 };
 
-// Call sync function
-syncModel();
+// Only run sync in development
+if (process.env.NODE_ENV !== 'production') {
+  syncModel();
+}
 
 module.exports = Content; 
